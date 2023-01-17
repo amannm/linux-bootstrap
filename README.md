@@ -6,8 +6,8 @@ Automation to generate an image that turns a Raspberry Pi into a USB audio out d
 * Entire build pipeline is capable of running locally on MacOS using M1/M2 processors
 
 #### TODO
-* The remainder of the pipeline that
+The remainder of the pipeline that
 * Installs and configures `spotifyd`
 * Configures ALSA
-* Configures Wifi
-* Customize the RPI OS image
+* Configures WLAN
+* Customizes the RPI OS image

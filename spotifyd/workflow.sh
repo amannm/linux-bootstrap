@@ -7,7 +7,7 @@ QEMU_SHARE_PATH="/opt/homebrew/share/qemu/"
 
 EDK2_ARM64_CODE="edk2-aarch64-code.fd"
 EDK2_ARM64_VARS="edk2-arm-vars.fd"
-PRESEED_CONFIG="preseed.cfg"
+PRESEED_CONFIG="../builder/preseed.cfg"
 
 function build() {
 
@@ -24,17 +24,19 @@ function build() {
   if [ ! -d "${images_folder}" ]; then
     mkdir "${images_folder}"
     curl -L "${OS_IMAGE_URL}" -o "${OS_IMAGE}"
-    ./util.sh build_preseed_iso "${PRESEED_CONFIG}" "${OS_IMAGE}" "${os_iso_path}"
+    ../builder/util.sh build_preseed_iso "${PRESEED_CONFIG}" "${OS_IMAGE}" "${os_iso_path}"
     rm "${OS_IMAGE}"
     cp "${QEMU_SHARE_PATH}/${EDK2_ARM64_CODE}" "${efi_code_path}"
     cp "${QEMU_SHARE_PATH}/${EDK2_ARM64_VARS}" "${efi_vars_path}"
   fi
 
+  cp ../builder/builder.pkr.hcl .
   packer build -parallel-builds=1 \
     -var "${os_iso}=${os_iso_path}" \
     -var "${efi_code}=${efi_code_path}" \
     -var "${efi_vars}=${efi_vars_path}" \
     -var "output_folder=${output_folder}" .
+  rm builder.pkr.hcl
 }
 
 "$@"
