@@ -1,18 +1,17 @@
-variable "os_iso" {
+variable "images_folder" {
   type = string
 }
-
-variable "efi_code" {
+variable "vm_folder" {
   type = string
 }
-
-variable "efi_vars" {
+variable "vm_name" {
   type = string
 }
-
 source "qemu" "debian_arm64" {
-  iso_url      = var.os_iso
-  iso_checksum = "none"
+  vm_name             = var.vm_name
+  output_directory    = var.vm_folder
+  iso_url             = "${var.images_folder}/os_iso"
+  iso_checksum        = "none"
   qemu_binary         = "qemu-system-aarch64"
   accelerator         = "hvf"
   use_default_display = true
@@ -37,12 +36,15 @@ source "qemu" "debian_arm64" {
   ssh_password     = "debian"
   ssh_wait_timeout = "300s"
 
-  boot_wait    = "5s"
-  boot_command = ["<enter>"]
-  shutdown_command = "echo 'debian' | sudo -S shutdown -P now"
+  boot_wait        = "5s"
+  boot_command     = ["<enter>"]
+  shutdown_command = "echo 'debian' | sudo shutdown now"
   format           = "raw"
 
-  efi_firmware_code = var.efi_code
-  efi_firmware_vars = var.efi_vars
+  efi_firmware_code = "${var.images_folder}/efi_code"
+  efi_firmware_vars = "${var.images_folder}/efi_vars"
+}
 
+build {
+  sources = ["source.qemu.debian_arm64"]
 }

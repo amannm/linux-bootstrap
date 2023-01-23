@@ -1,11 +1,19 @@
-d-i preseed/early_command string umount /media
+#!/usr/bin/env bash
+set -eou
+
+function build() {
+  local target_file="$1"
+  local name="${2:-"machine"}"
+  local username="${2:-"debian"}"
+  cat > "${target_file}" << EOF
+d-i preseed/early_command string umount /media || true
 
 d-i debian-installer/locale string en_US
 d-i keyboard-configuration/xkb-keymap select us
 
 d-i netcfg/choose_interface select auto
-d-i netcfg/get_hostname string packer
-d-i netcfg/get_domain string test
+d-i netcfg/get_hostname string ${name}
+d-i netcfg/get_domain string local
 d-i netcfg/wireless_wep string
 
 d-i mirror/country string manual
@@ -15,8 +23,8 @@ d-i mirror/http/proxy string
 
 d-i passwd/root-password password root
 d-i passwd/root-password-again password root
-d-i passwd/user-fullname string debian
-d-i passwd/username string debian
+d-i passwd/user-fullname string ${username}
+d-i passwd/username string ${username}
 d-i passwd/user-password password debian
 d-i passwd/user-password-again password debian
 
@@ -49,8 +57,14 @@ popularity-contest popularity-contest/participate boolean false
 
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
-d-i grub-installer/bootdev string packer-vg
+d-i grub-installer/bootdev string ${name}-vg
 
 d-i finish-install/reboot_in_progress note
 
-d-i preseed/late_command string echo 'debian ALL=(ALL) NOPASSWD: ALL' > /target/etc/sudoers.d/debian
+d-i debian-installer/exit/poweroff boolean true
+
+d-i preseed/late_command string echo '${username} ALL=(ALL) NOPASSWD: ALL' > /target/etc/sudoers.d/${username}
+EOF
+}
+
+"$@"
