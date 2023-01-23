@@ -1,0 +1,14 @@
+#cloud-config
+hostname: hostname
+manage_etc_hosts: true
+packages:
+  - avahi-daemon
+apt:
+  conf: |
+    Acquire {
+      Check-Date "false";
+    };
+timezone: "America/Chicago"
+runcmd:
+  - localectl set-x11-keymap "us" pc105
+  - setupcon -k --force || true

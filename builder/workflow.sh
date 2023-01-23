@@ -157,16 +157,16 @@ function build_vm() {
 
 function run_vm() {
   local vm_folder="$1"
+  local vm_ssh_port="$2"
 
+  local os_disk="os_disk"
   local efi_code="efi_code"
   local efi_vars="efi_vars"
-  local os_disk="os_disk"
 
   local os_disk_path="${vm_folder}/${os_disk}"
   local efi_code_path="${vm_folder}/${efi_code}"
   local efi_vars_path="${vm_folder}/${efi_vars}"
 
-  local local_ssh_port=1337
   /opt/homebrew/bin/qemu-system-aarch64 \
     -name debian-arm64 \
     -monitor stdio \
@@ -174,13 +174,13 @@ function run_vm() {
     -machine type=virt,accel=hvf \
     -cpu host \
     -smp 4 \
-    -m 8G \
+    -m 8192 \
     -nodefaults \
     -device virtio-gpu-pci \
     -device qemu-xhci \
     -device usb-kbd \
     -device virtio-net,netdev=user \
-    -netdev "user,id=user,hostfwd=tcp::${local_ssh_port}-:22" \
+    -netdev "user,id=user,hostfwd=tcp::${vm_ssh_port}-:22" \
     -drive file="${os_disk_path}",if=virtio,format=raw,cache=writeback,discard=ignore \
     -drive file="${efi_code_path}",if=pflash,format=raw,readonly=on \
     -drive file="${efi_vars_path}",if=pflash,format=raw
